@@ -56,7 +56,7 @@ jobs:
           sudo mv kubectl /usr/local/bin/
 
       - name: Copy Kubernetes Manifests to EC2
-        run: scp -i $SSH_PRIVATE_KEY -o StrictHostKeyChecking=no -r ./kubernetes ec2-user@$EC2_INSTANCE_IP:/home/ubuntu/code/microservices
+        run: scp -i $SSH_PRIVATE_KEY -o StrictHostKeyChecking=no -r ./kubernetes $EC2_USER@$EC2_INSTANCE_IP:/home/ubuntu/code/microservices
 
       - name: SSH into EC2 and Apply Manifests
         run: |
