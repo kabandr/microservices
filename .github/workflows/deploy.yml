@@ -1,0 +1,69 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  code-quality:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup SonarQube
+        uses: sonarsource/setup-sonarqube@v1
+        with:
+          url: ${{ secrets.SONARQUBE_URL }}
+          token: ${{ secrets.SONARQUBE_TOKEN }}
+          organization: $ORGANISATION_KEY
+
+      - name: Run SonarQube Scanner
+        run: sonar-scanner -Dsonar.projectKey=$PROJECT_KEY
+
+  build-and-deploy:
+    needs: code-quality
+    runs-on: ubuntu-latest
+
+    env:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      EC2_INSTANCE_IP: $EC2_INSTANCE_PUBLIC_IP
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Login to Docker Hub
+        run: docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
+
+      - name: Build and Push Docker Containers
+        run: |
+          # Find all service directories
+          for service_dir in $(find . -type d -name "service-*"); do
+            service_name=$(basename "$service_dir")
+            docker build -t $DOCKER_USERNAME/$service_name "$service_dir"
+            docker push $DOCKER_USERNAME/$service_name
+          done
+
+      - name: Install kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+
+      - name: Copy Kubernetes Manifests to EC2
+        run: scp -i $SSH_PRIVATE_KEY -o StrictHostKeyChecking=no -r ./kubernetes ec2-user@$EC2_INSTANCE_IP:/home/ubuntu/code/microservices
+
+      - name: SSH into EC2 and Apply Manifests
+        run: |
+          ssh -i $SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ec2-user@$EC2_INSTANCE_IP << 'EOF'
+          # Install Kind if needed
+          # Apply Kubernetes manifests using kubectl or Kind
+          kubectl apply -f /home/ubuntu/code/microservices/kubernetes
+          # Additional steps as needed
+          EOF
