@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose-resolved.yaml
+    kompose.version: 1.30.0 (9d8dcb518)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: order-processing
+  name: order-processing
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: order-processing
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose-resolved.yaml
+        kompose.version: 1.30.0 (9d8dcb518)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/microservices-default: "true"
+        io.kompose.service: order-processing
+    spec:
+      containers:
+        - env:
+            - name: PGDATABASE
+              value: ordersdb
+            - name: PGHOST
+              value: order-processing-db
+            - name: PGPASSWORD
+              value: password
+            - name: PGPORT
+              value: "5432"
+            - name: PGUSER
+              value: postgres
+            - name: PORT
+              value: "3001"
+          image: kabandr/order-processing-service
+          name: order-processing-service
+          ports:
+            - containerPort: 3001
+              hostPort: 3001
+              protocol: TCP
+          resources: {}
+      restartPolicy: Always
+status: {}
