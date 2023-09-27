@@ -14,11 +14,10 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Setup SonarQube
-        uses: sonarsource/setup-sonarqube@v1
+        uses: sonarsource/sonarqube-scan-action@master
         with:
-          url: ${{ secrets.SONARQUBE_URL }}
-          token: ${{ secrets.SONARQUBE_TOKEN }}
-          organization: $ORGANISATION_KEY
+          url: ${{ secrets.SONAR_HOST_URL }}
+          token: ${{ secrets.SONAR_TOKEN }}
 
       - name: Run SonarQube Scanner
         run: sonar-scanner -Dsonar.projectKey=$PROJECT_KEY
