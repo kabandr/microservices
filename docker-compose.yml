@@ -1,0 +1,62 @@
+version: '3'
+services:
+  order-processing:
+    container_name: order-processing-service
+    image: kabandr/order-processing-service
+    build:
+      context: ./order-processing
+      target: production
+    env_file: ./order-processing/.env
+    ports:
+      - 3001:3001
+    depends_on:
+      - order-processing-db
+
+  order-processing-db:
+    container_name: order-processing-db
+    image: postgres:13
+    restart: always
+    env_file: ./order-processing/.env
+    environment:
+      POSTGRES_HOST: ${PGHOST}
+      POSTGRES_USER: ${PGUSER}
+      POSTGRES_PASSWORD: ${PGPASSWORD}
+      POSTGRES_DB: ${PGDATABASE}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+  mongodb:
+    container_name: mongodb
+    image: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb-data:/data/db
+
+  user-management:
+    container_name: user-management-service
+    image: kabandr/user-management-service
+    build:
+      context: ./user-management
+    ports:
+      - "3000:3000"
+    env_file: ./user-management/.env
+    links:
+      - mongodb
+    depends_on:
+      - mongodb
+
+  frontend:
+    container_name: frontend
+    image: kabandr/frontend
+    build:
+      context: ./frontend
+    ports:
+      - "5173:80"
+
+volumes:
+  postgres-data:
+  mongodb-data:
