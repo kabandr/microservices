@@ -6,21 +6,18 @@ on:
       - main
 
 jobs:
-  # code-quality:
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #     - name: Checkout Repository
-  #       uses: actions/checkout@v2
-
-  #     - name: Setup SonarQube
-  #       uses: sonarsource/sonarqube-scan-action@master
-  #       with:
-  #         url: ${{ secrets.SONAR_HOST_URL }}
-  #         token: ${{ secrets.SONAR_TOKEN }}
-
-  #     - name: Run SonarQube Scanner
-  #       run: sonar-scanner -Dsonar.projectKey=$PROJECT_KEY
+  code-quality:
+    name: Run SonarQube Scanner
+    runs-on: ubuntu-latest
+    permissions: read-all
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+      - uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
   build-and-deploy:
     needs: code-quality
