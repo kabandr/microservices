@@ -70,16 +70,13 @@ jobs:
           sudo mv kubectl /usr/local/bin/
 
       - name: Copy Kubernetes Manifests to EC2
-        run: >-
-          scp -i $SSH_PRIVATE_KEY -o StrictHostKeyChecking=no -r ./kubernetes
-          $EC2_USER@$EC2_INSTANCE_IP:/home/ubuntu/code/microservices
+        run: |
+          scp -i $SSH_PRIVATE_KEY -o StrictHostKeyChecking=no -r ./kubernetes $EC2_USER@$EC2_INSTANCE_IP:/home/ubuntu/code/microservices
 
       - name: SSH into EC2 and Apply Manifests
-        run: >
-          ssh -i $SSH_PRIVATE_KEY -o StrictHostKeyChecking=no
-          ec2-user@$EC2_INSTANCE_IP << 'EOF'
+        run: |
+          ssh -i $SSH_PRIVATE_KEY -o StrictHostKeyChecking=no ec2-user@$EC2_INSTANCE_IP << 'EOF'
           # Install Kind if needed
           # Apply Kubernetes manifests using kubectl or Kind
           kubectl apply -f /home/ubuntu/code/microservices/kubernetes
-          # Additional steps as needed
           EOF
