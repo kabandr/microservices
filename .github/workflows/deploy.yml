@@ -10,15 +10,16 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
+
       - name: Setup SonarQube
         uses: sonarsource/sonarqube-scan-action@master
         with:
           url: "${{ secrets.SONAR_HOST_URL }}"
           token: "${{ secrets.SONAR_TOKEN }}"
+
       - name: Run SonarQube Scanner
         run: >-
-          sonar-scanner \ -Dsonar.projectKey=microservices \ -Dsonar.sources=. \
-          -Dsonar.host.url=https://sonar.sharelabs.co.uk
+          sonar-scanner -Dsonar.projectKey=microservices -Dsonar.sources=. -Dsonar.host.url=https://sonar.sharelabs.co.uk
 
   build-and-deploy:
     needs: code-quality
