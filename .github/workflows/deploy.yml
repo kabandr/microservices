@@ -39,7 +39,6 @@ jobs:
     env:
       DOCKERHUB_USERNAME: "${{ secrets.DOCKERHUB_USERNAME }}"
       DOCKERHUB_PASSWORD: "${{ secrets.DOCKERHUB_PASSWORD }}"
-      DOCKER_USERNAME: "${{ secrets.DOCKER_USERNAME }}"
       SSH_PRIVATE_KEY: "${{ secrets.SSH_PRIVATE_KEY }}"
       EC2_INSTANCE_IP: $EC2_INSTANCE_PUBLIC_IP
     steps:
@@ -58,10 +57,10 @@ jobs:
           # Sanitize the service name by replacing spaces with hyphens
           sanitized_service_name=$(echo "$original_service_name" | tr ' ' '-')
           echo "Service Name: $sanitized_service_name"
-          echo "Docker Username: $DOCKER_USERNAME"  # Add this line to print Docker username
+          echo "Docker Username: $DOCKERHUB_USERNAME"  # Add this line to print Docker username
 
-          docker build -t $DOCKER_USERNAME/$sanitized_service_name "$service_dir"
-          docker push $DOCKER_USERNAME/$sanitized_service_name
+          docker build -t $DOCKERHUB_USERNAME/$sanitized_service_name "$service_dir"
+          docker push $DOCKERHUB_USERNAME/$sanitized_service_name
           done
 
       - name: Install kubectl
