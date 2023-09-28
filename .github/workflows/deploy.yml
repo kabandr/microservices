@@ -73,7 +73,7 @@ jobs:
       - name: Set up SSH Agent
         uses: webfactory/ssh-agent@v0.5.3
         with:
-          ssh-private-key: $SSH_PRIVATE_KEY
+          ssh-private-key: "$SSH_PRIVATE_KEY"
 
       - name: Copy Kubernetes Manifests to EC2
         run: |
