@@ -13,9 +13,9 @@ jobs:
 
       - name: Setup SonarQube
         uses: sonarsource/sonarqube-scan-action@master
-        with:
-          url: "${{ secrets.SONAR_HOST_URL }}"
-          token: "${{ secrets.SONAR_TOKEN }}"
+        env:
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: Run SonarQube Scanner
         run: >-
