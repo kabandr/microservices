@@ -52,10 +52,13 @@ jobs:
       - name: Build and Push Docker Containers
         run: |
           # Find all service directories
-          for service_dir in $(find . -type d -name "*-service"); do
-            service_name=$(basename "$service_dir")
-            docker build -t $DOCKER_USERNAME/$service_name "$service_dir"
-            docker push $DOCKER_USERNAME/$service_name
+            for service_dir in $(find . -type d -name "*-service"); do
+              original_service_name=$(basename "$service_dir")
+          # Sanitize the service name by replacing spaces with hyphens
+            sanitized_service_name=$(echo "$original_service_name" | tr ' ' '-')
+            echo "Service Name: $sanitized_service_name"
+            docker build -t $DOCKER_USERNAME/$sanitized_service_name "$service_dir"
+            docker push $DOCKER_USERNAME/$sanitized_service_name
           done
 
       - name: Install kubectl
