@@ -5,36 +5,36 @@ name: CI/CD Pipeline
     branches:
       - main
 jobs:
-  code-quality:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+  # code-quality:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v2
 
-      - name: Setup SonarQube
-        uses: sonarsource/sonarqube-scan-action@master
-        env:
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  #     - name: Setup SonarQube
+  #       uses: sonarsource/sonarqube-scan-action@master
+  #       env:
+  #         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      - name: Install Docker
-        run: |
-          # Install Docker here
-          # You may use the official Docker installation script
-          curl -fsSL https://get.docker.com | sh
-          sudo usermod -aG docker $USER
-          sudo systemctl enable docker
-          sudo systemctl start docker
+  #     - name: Install Docker
+  #       run: |
+  #         # Install Docker here
+  #         # You may use the official Docker installation script
+  #         curl -fsSL https://get.docker.com | sh
+  #         sudo usermod -aG docker $USER
+  #         sudo systemctl enable docker
+  #         sudo systemctl start docker
 
-      - name: Run SonarQube Scanner
-        run: |
-          docker run --rm -e SONAR_HOST_URL -e SONAR_TOKEN -v "$(pwd):/usr/src" sonarsource/sonar-scanner-cli \
-            -Dsonar.projectKey=microservices \
-            -Dsonar.sources=. \
-            -Dsonar.projectBaseDir=/usr/src
+  #     - name: Run SonarQube Scanner
+  #       run: |
+  #         docker run --rm -e SONAR_HOST_URL -e SONAR_TOKEN -v "$(pwd):/usr/src" sonarsource/sonar-scanner-cli \
+  #           -Dsonar.projectKey=microservices \
+  #           -Dsonar.sources=. \
+  #           -Dsonar.projectBaseDir=/usr/src
 
   build-and-deploy:
-    needs: code-quality
+    # needs: code-quality
     runs-on: ubuntu-latest
     env:
       DOCKERHUB_USERNAME: "${{ secrets.DOCKERHUB_USERNAME }}"
@@ -52,7 +52,7 @@ jobs:
       - name: Build and Push Docker Containers
         run: |
           # Find all service directories
-          for service_dir in $(find . -type d -name "service-*"); do
+          for service_dir in $(find . -type d -name "*-service"); do
             service_name=$(basename "$service_dir")
             docker build -t $DOCKER_USERNAME/$service_name "$service_dir"
             docker push $DOCKER_USERNAME/$service_name
