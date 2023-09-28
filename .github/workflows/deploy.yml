@@ -17,18 +17,21 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      - name: Install SonarScanner
+      - name: Install Docker
         run: |
-          curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.0.2311-linux.zip
-          unzip sonar-scanner.zip
-          export PATH="$PWD/sonar-scanner-4.6.0.2311-linux/bin:$PATH"
+          # Install Docker here
+          # You may use the official Docker installation script
+          curl -fsSL https://get.docker.com | sh
+          sudo usermod -aG docker $USER
+          sudo systemctl enable docker
+          sudo systemctl start docker
 
       - name: Run SonarQube Scanner
         run: |
-          sonar-scanner \
+          docker run --rm -e SONAR_HOST_URL -e SONAR_TOKEN -v "$(pwd):/usr/src" sonarsource/sonar-scanner-cli \
             -Dsonar.projectKey=microservices \
             -Dsonar.sources=. \
-            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
+            -Dsonar.projectBaseDir=/usr/src
 
   build-and-deploy:
     needs: code-quality
