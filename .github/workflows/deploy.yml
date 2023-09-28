@@ -41,7 +41,7 @@ jobs:
       DOCKERHUB_PASSWORD: "${{ secrets.DOCKERHUB_PASSWORD }}"
       SSH_PRIVATE_KEY: "${{ secrets.SSH_PRIVATE_KEY }}"
       EC2_USER: "${{ secrets.EC2_USER }}"
-      EC2_INSTANCE_IP: "${{ EC2_INSTANCE_PUBLIC_IP }}"
+      EC2_INSTANCE_IP: "${{ secrets.EC2_INSTANCE_PUBLIC_IP }}"
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
